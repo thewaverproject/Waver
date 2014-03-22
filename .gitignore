@@ -1,0 +1,9 @@
+*.pyc
+*.o
+*.aux
+*.toc
+*.log
+*.ropeproject/*
+*.out
+*.vawer
+
