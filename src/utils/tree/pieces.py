@@ -1,7 +1,8 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 
-
+import os
+import os.path
 import utils.tree.arborescence as A
 
 
@@ -11,6 +12,7 @@ class PiecesTree(A.Arborescence):
         A.Arborescence.__init__(self, contents)
 
     def pretty_print(self, depth=0, prefix='-'):
+        ret = None
         if type(self.contents) == str:
             ret = depth * prefix + self.contents
         elif type(self.contents) == tuple:           # (Name, idx_st, idx_end)
@@ -76,3 +78,30 @@ def str2PiecesTree(string, prefix='-'):
         contents, d = get_characteristics(line, prefix)
         res = add_in_tree(res, contents, d - 1)
     return res
+
+
+def path2PiecesTree(path, pieces_sz, nb_pieces=0):
+    res = None
+    if os.path.isfile(path):
+        idx_st = nb_pieces
+        idx_end = idx_st + os.path.getsize(path) / pieces_sz
+        nb_pieces = idx_end
+        res = PiecesTree((os.path.basename(path), idx_st, idx_end))
+    elif os.path.isdir(path):
+        res = PiecesTree(os.path.basename(path))
+        els = os.listdir(path)
+
+        dir_contents = (filter(lambda x: os.path.isdir(path + '/' + x), els)
+                     + filter(lambda x: os.path.isfile(path + '/' + x), els))
+
+        for el in dir_contents:
+            path_el = path + '/' + el
+            if os.path.isdir(path_el):
+                tmp, nb_pieces = path2PiecesTree(path_el, pieces_sz, nb_pieces)
+                res.add_son(tmp)
+            elif os.path.isfile(path_el):
+                idx_st = nb_pieces + 1
+                idx_end = idx_st + os.path.getsize(path_el) / pieces_sz
+                nb_pieces = idx_end
+                res.add_son(PiecesTree((el, idx_st, idx_end)))
+    return res, nb_pieces
