@@ -2,28 +2,29 @@
 # -*- coding: utf-8 -*-
 
 class Arborescence:
-    def __init__(self, content=None):
-        self.content = content
+    def __init__(self, contents=None):
+        self.contents = contents
         self.sons = []
 
     def add_son(self, son):
         self.sons.append(son)
+        return self
 
-    def define_content(self, content):
-        self.content = content
+    def define_contents(self, contents):
+        self.contents = contents
 
     def delete(self):
         for son in self.sons:
             son.delete()
         self.fils = []
-        self.content = None
+        self.contents = None
     """
        Definition des fonction speciales
     """
 
 
     def pretty_print(self, depth=1,prefix='-'):
-        ret = self.content.__str__()
+        ret = self.contents.__str__()
         for son in self.sons:
             ret += '\n' + prefix*depth + son.pretty_print(depth + 1,prefix)
         return ret
