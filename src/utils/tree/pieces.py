@@ -1,7 +1,8 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 
-import os, os.path
+import os
+import os.path
 from math import ceil
 import md5
 import utils.tree.arborescence as A
@@ -14,6 +15,16 @@ class PiecesTree(A.Arborescence):
     """
     def __init__(self, contents=None):
         A.Arborescence.__init__(self, contents)
+
+    def extract_hashes(self):
+        hashes = []
+        if type(self.contents) == tuple:
+            _, _, _, md5hash = self.contents
+            hashes += md5hash
+        elif type(self.contents) == str:
+            for s in self.sons:
+                hashes += s.extract_hashes()
+        return hashes
 
     def pretty_print(self, depth=0, prefix='-'):
         ret = None
@@ -85,12 +96,12 @@ def str2PiecesTree(string, prefix='-'):
     return res
 
 
-def path2PiecesTree(path, pieces_sz, pieces_tot=0):
+def path2PiecesTree(path, pieces_sz, nb_pieces=0):
     res = None
     if os.path.isfile(path):
-        idx_st = pieces_tot
+        idx_st = nb_pieces
         idx_end = idx_st + int(ceil(os.path.getsize(path) / float(pieces_sz)))
-        pieces_tot = idx_end
+        nb_pieces = idx_end
         res = PiecesTree((os.path.basename(path), idx_st, idx_end))
     elif os.path.isdir(path):
         res = PiecesTree(os.path.basename(path))
@@ -102,16 +113,16 @@ def path2PiecesTree(path, pieces_sz, pieces_tot=0):
         for el in dir_contents:
             path_el = path + '/' + el
             if os.path.isdir(path_el):
-                tmp, pieces_tot = path2PiecesTree(path_el, pieces_sz, pieces_tot)
+                tmp, nb_pieces = path2PiecesTree(path_el, pieces_sz, nb_pieces)
                 res.add_son(tmp)
             elif os.path.isfile(path_el):
-                idx_st = pieces_tot + 1
+                idx_st = nb_pieces + 1
                 n = int(ceil(os.path.getsize(path_el) / float(pieces_sz)))
                 idx_end = idx_st + n
-                pieces_tot = idx_end
+                nb_pieces = idx_end
                 hashes = []
                 with open(path_el) as f:
                     for i in xrange(0, n):
                         hashes += [md5.md5(f.read(pieces_sz)).hexdigest()]
                 res.add_son(PiecesTree((el, idx_st, idx_end, hashes)))
-    return res, pieces_tot
+    return res, nb_pieces
