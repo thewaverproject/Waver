@@ -1,13 +1,17 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 
-import os
-import os.path
+import os, os.path
+from math import ceil
+import md5
 import utils.tree.arborescence as A
 
 
 class PiecesTree(A.Arborescence):
-
+    """
+        Les noeuds sont de la forme : Name
+        et les feuilles sont de la forme : (Name, idx_st, idx_end, [hashes])
+    """
     def __init__(self, contents=None):
         A.Arborescence.__init__(self, contents)
 
@@ -15,10 +19,11 @@ class PiecesTree(A.Arborescence):
         ret = None
         if type(self.contents) == str:
             ret = depth * prefix + self.contents
-        elif type(self.contents) == tuple:           # (Name, idx_st, idx_end)
-            name, idx_st, idx_end = self.contents
+        elif type(self.contents) == tuple:
+            name, idx_st, idx_end, hashes = self.contents
             ret = depth * prefix \
-                + name + " | " + str(idx_st) + " | " + str(idx_end)
+                + " | " + name + " | " + str(idx_st) + " | " + str(idx_end) \
+                + " | " + str(hashes)
         for s in self.sons:
             ret += "\n" + s.pretty_print(depth + 1, prefix)
         return ret
@@ -80,12 +85,12 @@ def str2PiecesTree(string, prefix='-'):
     return res
 
 
-def path2PiecesTree(path, pieces_sz, nb_pieces=0):
+def path2PiecesTree(path, pieces_sz, pieces_tot=0):
     res = None
     if os.path.isfile(path):
-        idx_st = nb_pieces
-        idx_end = idx_st + os.path.getsize(path) / pieces_sz
-        nb_pieces = idx_end
+        idx_st = pieces_tot
+        idx_end = idx_st + int(ceil(os.path.getsize(path) / float(pieces_sz)))
+        pieces_tot = idx_end
         res = PiecesTree((os.path.basename(path), idx_st, idx_end))
     elif os.path.isdir(path):
         res = PiecesTree(os.path.basename(path))
@@ -97,11 +102,16 @@ def path2PiecesTree(path, pieces_sz, nb_pieces=0):
         for el in dir_contents:
             path_el = path + '/' + el
             if os.path.isdir(path_el):
-                tmp, nb_pieces = path2PiecesTree(path_el, pieces_sz, nb_pieces)
+                tmp, pieces_tot = path2PiecesTree(path_el, pieces_sz, pieces_tot)
                 res.add_son(tmp)
             elif os.path.isfile(path_el):
-                idx_st = nb_pieces + 1
-                idx_end = idx_st + os.path.getsize(path_el) / pieces_sz
-                nb_pieces = idx_end
-                res.add_son(PiecesTree((el, idx_st, idx_end)))
-    return res, nb_pieces
+                idx_st = pieces_tot + 1
+                n = int(ceil(os.path.getsize(path_el) / float(pieces_sz)))
+                idx_end = idx_st + n
+                pieces_tot = idx_end
+                hashes = []
+                with open(path_el) as f:
+                    for i in xrange(0, n):
+                        hashes += [md5.md5(f.read(pieces_sz)).hexdigest()]
+                res.add_son(PiecesTree((el, idx_st, idx_end, hashes)))
+    return res, pieces_tot
