@@ -31,10 +31,9 @@ class PiecesTree(A.Arborescence):
         if type(self.contents) == str:
             ret = depth * prefix + self.contents
         elif type(self.contents) == tuple:
-            name, idx_st, idx_end, hashes = self.contents
+            name, idx_st, idx_end, _ = self.contents
             ret = depth * prefix \
                 + " | " + name + " | " + str(idx_st) + " | " + str(idx_end) \
-                + " | " + str(hashes)
         for s in self.sons:
             ret += "\n" + s.pretty_print(depth + 1, prefix)
         return ret
