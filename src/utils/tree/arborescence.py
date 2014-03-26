@@ -16,7 +16,7 @@ class Arborescence:
     def delete(self):
         for son in self.sons:
             son.delete()
-        self.fils = []
+        self.sons = []
         self.contents = None
     """
        Definition des fonction speciales
