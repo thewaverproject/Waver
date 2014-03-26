@@ -13,7 +13,7 @@ class PiecesTree(A.Arborescence):
         Les noeuds sont de la forme : Name
         et les feuilles sont de la forme : (Name, idx_st, idx_end, [hashes])
     """
-    def __init__(self, contents=None):
+    def __init__(self, pieces_sz, contents=None):
         A.Arborescence.__init__(self, contents)
 
     def extract_hashes(self):
@@ -25,6 +25,21 @@ class PiecesTree(A.Arborescence):
             for s in self.sons:
                 hashes += s.extract_hashes()
         return hashes
+
+    def _at(self, idx, path):
+        if type(self.contents) == str:
+            for son in self.sons:
+                tmp = son._at(idx, path + '/' + self.contents)
+                if tmp is not None:
+                    return tmp
+        elif type(self.contents) == tuple:
+            name, idx_st, idx_end, _ = self.contents
+            if idx_st <= idx <= idx_end:
+                path = path + '/' + name
+                return path, idx - idx_st
+
+    def at(self, idx):
+        return self._at(idx, '')
 
     def pretty_print(self, depth=0, prefix='-'):
         ret = None
@@ -95,33 +110,33 @@ def str2PiecesTree(string, prefix='-'):
     return res
 
 
-def path2PiecesTree(path, pieces_sz, nb_pieces=0):
+def path2PiecesTree(path, piece_sz, nb_pieces=0):
     res = None
     if os.path.isfile(path):
         idx_st = nb_pieces
-        idx_end = idx_st + int(ceil(os.path.getsize(path) / float(pieces_sz)))
+        idx_end = idx_st + int(ceil(os.path.getsize(path) / float(piece_sz)))
         nb_pieces = idx_end
-        res = PiecesTree((os.path.basename(path), idx_st, idx_end))
+        res = PiecesTree(piece_sz(os.path.basename(path), idx_st, idx_end))
     elif os.path.isdir(path):
-        res = PiecesTree(os.path.basename(path))
+        res = PiecesTree(piece_sz, os.path.basename(path))
         els = os.listdir(path)
 
-        dir_contents = (filter(lambda x: os.path.isdir(path + '/' + x), els)
-                     + filter(lambda x: os.path.isfile(path + '/' + x), els))
+        dir_contents = filter(lambda x: os.path.isdir(path + '/' + x), els) \
+                     + filter(lambda x: os.path.isfile(path + '/' + x), els)
 
         for el in dir_contents:
             path_el = path + '/' + el
             if os.path.isdir(path_el):
-                tmp, nb_pieces = path2PiecesTree(path_el, pieces_sz, nb_pieces)
+                tmp, nb_pieces = path2PiecesTree(path_el, piece_sz, nb_pieces)
                 res.add_son(tmp)
             elif os.path.isfile(path_el):
                 idx_st = nb_pieces + 1
-                n = int(ceil(os.path.getsize(path_el) / float(pieces_sz)))
+                n = int(ceil(os.path.getsize(path_el) / float(piece_sz)))
                 idx_end = idx_st + n
                 nb_pieces = idx_end
                 hashes = []
                 with open(path_el) as f:
                     for i in xrange(0, n):
-                        hashes += [md5.md5(f.read(pieces_sz)).hexdigest()]
-                res.add_son(PiecesTree((el, idx_st, idx_end, hashes)))
+                        hashes += [md5.md5(f.read(piece_sz)).hexdigest()]
+                res.add_son(PiecesTree(piece_sz, (el, idx_st, idx_end, hashes)))
     return res, nb_pieces
