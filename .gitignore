@@ -6,4 +6,8 @@
 *.ropeproject/*
 *.out
 *.vawer
-
+*.swp
+in
+out
+*test*
+*.waver
