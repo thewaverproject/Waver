@@ -1,9 +1,6 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 
-import md5
-import utils.tree.pieces as P
-
 
 class Waver:
     def __init__(self, pieces, properties, tracker):
@@ -11,6 +8,7 @@ class Waver:
         self.properties = properties
         self.tracker = tracker
         self.hashes = pieces.extract_hashes()
+        self.nb_pieces = self.hashes
 
     def __str__(self):
         ret = "\n"
