@@ -3,12 +3,13 @@
 
 
 class Waver:
-    def __init__(self, pieces, properties, tracker):
+    def __init__(self, pieces, properties, tracker, pieces_sz):
         self.pieces = pieces
         self.properties = properties
         self.tracker = tracker
         self.hashes = pieces.extract_hashes()
         self.nb_pieces = self.hashes
+        self.pieces_sz = pieces_sz
 
     def __str__(self):
         ret = "\n"
