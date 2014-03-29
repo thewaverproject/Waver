@@ -116,7 +116,7 @@ def path2PiecesTree(path, piece_sz, nb_pieces=0):
         idx_st = nb_pieces
         idx_end = idx_st + int(ceil(os.path.getsize(path) / float(piece_sz)))
         nb_pieces = idx_end
-        res = PiecesTree(piece_sz(os.path.basename(path), idx_st, idx_end))
+        res = PiecesTree(piece_sz, os.path.basename(path), idx_st, idx_end))
     elif os.path.isdir(path):
         res = PiecesTree(piece_sz, os.path.basename(path))
         els = os.listdir(path)
