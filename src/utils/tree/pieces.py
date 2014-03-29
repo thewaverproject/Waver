@@ -135,7 +135,7 @@ def path2PiecesTree(path, piece_sz, nb_pieces=0):
                 idx_end = idx_st + n - 1
                 nb_pieces = idx_end
                 hashes = []
-                with open(path_el) as f:
+                with open(path_el, "rb") as f:
                     for i in xrange(0, n):
                         hashes += [md5.md5(f.read(piece_sz)).hexdigest()]
                 res.add_son(PiecesTree(piece_sz, (el, idx_st, idx_end, hashes)))
