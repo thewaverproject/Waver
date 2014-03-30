@@ -116,7 +116,7 @@ def path2PiecesTree(path, piece_sz, nb_pieces=0):
         idx_st = nb_pieces
         idx_end = idx_st + int(ceil(os.path.getsize(path) / float(piece_sz)))
         nb_pieces = idx_end
-        res = PiecesTree(piece_sz, os.path.basename(path), idx_st, idx_end))
+        res = PiecesTree((piece_sz, os.path.basename(path), idx_st, idx_end))
     elif os.path.isdir(path):
         res = PiecesTree(piece_sz, os.path.basename(path))
         els = os.listdir(path)
@@ -132,10 +132,10 @@ def path2PiecesTree(path, piece_sz, nb_pieces=0):
             elif os.path.isfile(path_el):
                 idx_st = nb_pieces + 1
                 n = int(ceil(os.path.getsize(path_el) / float(piece_sz)))
-                idx_end = idx_st + n
+                idx_end = idx_st + n - 1
                 nb_pieces = idx_end
                 hashes = []
-                with open(path_el) as f:
+                with open(path_el, "rb") as f:
                     for i in xrange(0, n):
                         hashes += [md5.md5(f.read(piece_sz)).hexdigest()]
                 res.add_son(PiecesTree(piece_sz, (el, idx_st, idx_end, hashes)))
