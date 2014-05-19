@@ -13,7 +13,7 @@ class PiecesTree(A.Arborescence):
         Les noeuds sont de la forme : Name
         et les feuilles sont de la forme : (Name, idx_st, idx_end, [hashes])
     """
-    def __init__(self, pieces_sz, contents=None):
+    def __init__(self, contents=None):
         A.Arborescence.__init__(self, contents)
 
     def extract_hashes(self):
@@ -69,7 +69,7 @@ def get_contents(line):
     try:
         idx_st = int(line[1])
         idx_end = int(line[2])
-        contents = name, idx_st, idx_end
+        contents = name, idx_st, idx_end, ''
     except:
         contents = name
     return contents
