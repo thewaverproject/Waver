@@ -95,7 +95,7 @@ def get_hash(lines,idx):
 
 def file2waver(str):
     lines = str.split('\n')
-    if md5.md5('\n'.join(lines[1:]).hexdigest == lines[0:]:
+    if md5.md5('\n'.join(lines[1:])).hexdigest == lines[0:]:
         prop, i = get_properties(str,0)
         tracker, i = get_tracker(str,i)
         pieces, i = get_pieces(str,i)
