@@ -70,6 +70,9 @@ class File:
         else:
             return 0
 
+    def is_downloadb(self, idx):
+        return self.state[2][idx]
+
     def info(self):
         sz_subdiv = int(ceil(len(self.state[2]) / float(100)))
         ret = []

@@ -93,17 +93,17 @@ def get_hash(lines,idx):
 
 
 
-def file2waver(str):
-    lines = str.split('\n')
-    if md5.md5('\n'.join(lines[1:])).hexdigest == lines[0:]:
-        prop, i = get_properties(str,0)
-        tracker, i = get_tracker(str,i)
-        pieces, i = get_pieces(str,i)
-        hash, i = get_hash(str,i)
+def file2waver(s):
+    lines = s.split('\n')
+    if md5.md5('\n'.join(lines[1:])).hexdigest() == lines[0]:
+        prop, i = get_properties(lines,0)
+        tracker, i = get_tracker(lines,i)
+        pieces, i = get_pieces(lines,i)
+        hash, i = get_hash(lines,i)
         for elt in prop:
             const , value = elt
             if const == "pieces_sz":
-                pieces_sz = value
+                pieces_sz = int(value)
         return Waver(pieces,prop,tracker,pieces_sz)
     else:
         raise BadFile
